@@ -1,0 +1,117 @@
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">Gestão de Pedidos</h1>
+    <button mat-raised-button color="primary" (click)="abrirFormularioNovo()">
+      <mat-icon>add</mat-icon>
+      Novo Pedido
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="carregando">
+    <mat-spinner></mat-spinner>
+    <p>Carregando pedidos...</p>
+  </div>
+
+  <div class="pedidos-container" *ngIf="!carregando">
+
+    <!-- Lista de Pedidos em Cards -->
+    <div class="pedidos-list">
+      <mat-card *ngFor="let pedido of pedidos; trackBy: trackByPedido" class="pedido-card mat-elevation-2">
+
+        <!-- Header do Pedido - CLICÁVEL -->
+        <mat-card-header
+          class="pedido-header"
+          [class.expandido]="isPedidoExpandido(pedido.id || 0)"
+          (click)="toggleProdutos(pedido)">
+
+          <div class="pedido-info">
+            <div class="info-row">
+              <span class="label">ID:</span>
+              <span class="value">#{{ pedido.id }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Comprador:</span>
+              <span class="value">{{ pedido.nomeComprador }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Fornecedor:</span>
+              <span class="value">{{ pedido.nomeFornecedor }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Total Produtos:</span>
+              <span class="value">{{ pedido.totalProdutosComprados }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Valor Total:</span>
+              <span class="value highlight">{{ formatarValor(pedido.valorTotalComprado || 0) }}</span>
+            </div>
+          </div>
+
+          <div class="pedido-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button
+                    color="primary"
+                    (click)="toggleProdutos(pedido)"
+                    [title]="isPedidoExpandido(pedido.id || 0) ? 'Ocultar produtos' : 'Ver produtos'">
+              <mat-icon>{{ isPedidoExpandido(pedido.id || 0) ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    color="accent"
+                    (click)="editarPedido(pedido)"
+                    title="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    color="warn"
+                    (click)="excluirPedido(pedido)"
+                    title="Excluir">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
+
+        <!-- Produtos Expandidos -->
+        <mat-card-content *ngIf="isPedidoExpandido(pedido.id || 0)" class="produtos-section">
+
+          <!-- Loading dos produtos -->
+          <div *ngIf="carregandoProdutos[pedido.id || 0]" class="produtos-loading">
+            <mat-spinner diameter="30"></mat-spinner>
+            <p>Carregando produtos...</p>
+          </div>
+
+          <!-- Lista de produtos -->
+          <div *ngIf="!carregandoProdutos[pedido.id || 0]">
+            <h3>Produtos do Pedido #{{ pedido.id }}</h3>
+
+            <div class="produtos-grid" *ngIf="getProdutosDoPedido(pedido.id || 0).length > 0">
+              <div *ngFor="let produto of getProdutosDoPedido(pedido.id || 0); trackBy: trackByProduto" class="produto-item">
+                <mat-card class="produto-card">
+                  <mat-card-content>
+                    <h4>{{ produto.nomeProduto }}</h4>
+                    <p><strong>Quantidade:</strong> {{ produto.quantidadeComprada }}</p>
+                    <p><strong>Valor Total:</strong> {{ formatarValor(produto.valorTotalProduto) }}</p>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+
+            <div *ngIf="getProdutosDoPedido(pedido.id || 0).length === 0" class="no-produtos">
+              <mat-icon>info</mat-icon>
+              <p>Nenhum produto encontrado para este pedido.</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Mensagem quando não há pedidos -->
+    <div *ngIf="pedidos.length === 0" class="no-data">
+      <mat-icon>inbox</mat-icon>
+      <p>Nenhum pedido encontrado.</p>
+      <button mat-raised-button color="primary" (click)="abrirFormularioNovo()">
+        Criar Primeiro Pedido
+      </button>
+    </div>
+  </div>
+</div>

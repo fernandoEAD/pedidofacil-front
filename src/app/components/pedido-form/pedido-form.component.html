@@ -1,0 +1,143 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>
+    {{ modo === 'criar' ? 'Novo Pedido' : 'Editar Pedido' }}
+  </h2>
+
+  <form [formGroup]="pedidoForm" (ngSubmit)="onSubmit()">
+    <mat-dialog-content class="dialog-content">
+
+      <!-- Dados do Pedido -->
+      <div class="section">
+        <h3>Dados do Pedido</h3>
+
+        <div class="row">
+          <mat-form-field class="full-width">
+            <mat-label>Nome do Comprador</mat-label>
+            <input matInput formControlName="nomeComprador" placeholder="Ex: João Silva">
+            <mat-error *ngIf="nomeComprador?.invalid && nomeComprador?.touched">
+              <span *ngIf="nomeComprador?.errors?.['required']">Nome do comprador é obrigatório</span>
+              <span *ngIf="nomeComprador?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <mat-form-field class="full-width">
+            <mat-label>Nome do Fornecedor</mat-label>
+            <input matInput formControlName="nomeFornecedor" placeholder="Ex: TechStore Ltda">
+            <mat-error *ngIf="nomeFornecedor?.invalid && nomeFornecedor?.touched">
+              <span *ngIf="nomeFornecedor?.errors?.['required']">Nome do fornecedor é obrigatório</span>
+              <span *ngIf="nomeFornecedor?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Produtos -->
+      <div class="section">
+        <div class="section-header">
+          <h3>Produtos</h3>
+          <button type="button" mat-mini-fab color="primary" (click)="adicionarProduto()"
+                  title="Adicionar Produto">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <div formArrayName="produtos" class="produtos-container">
+          <div *ngFor="let produto of produtos.controls; let i = index"
+               [formGroupName]="i"
+               class="produto-form">
+
+            <mat-card class="produto-card">
+              <mat-card-header>
+                <mat-card-title>Produto {{ i + 1 }}</mat-card-title>
+                <button type="button"
+                        mat-icon-button
+                        color="warn"
+                        (click)="removerProduto(i)"
+                        [disabled]="produtos.length === 1"
+                        title="Remover Produto">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </mat-card-header>
+
+              <mat-card-content>
+                <div class="produto-fields">
+                  <mat-form-field class="full-width">
+                    <mat-label>Nome do Produto</mat-label>
+                    <input matInput formControlName="nomeProduto" placeholder="Ex: Notebook Dell">
+                    <mat-error *ngIf="produto.get('nomeProduto')?.invalid && produto.get('nomeProduto')?.touched">
+                      <span *ngIf="produto.get('nomeProduto')?.errors?.['required']">Nome é obrigatório</span>
+                      <span *ngIf="produto.get('nomeProduto')?.errors?.['minlength']">Nome deve ter pelo menos 2 caracteres</span>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <div class="row">
+                    <mat-form-field class="half-width">
+                      <mat-label>Quantidade</mat-label>
+                      <input matInput
+                             type="number"
+                             formControlName="quantidadeComprada"
+                             min="1"
+                             placeholder="1">
+                      <mat-error *ngIf="produto.get('quantidadeComprada')?.invalid && produto.get('quantidadeComprada')?.touched">
+                        <span *ngIf="produto.get('quantidadeComprada')?.errors?.['required']">Quantidade é obrigatória</span>
+                        <span *ngIf="produto.get('quantidadeComprada')?.errors?.['min']">Quantidade deve ser maior que 0</span>
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field class="half-width">
+                      <mat-label>Valor Total</mat-label>
+                      <input matInput
+                             type="number"
+                             formControlName="valorTotalProduto"
+                             min="0.01"
+                             step="0.01"
+                             placeholder="0.00">
+                      <span matPrefix>R$ </span>
+                      <mat-error *ngIf="produto.get('valorTotalProduto')?.invalid && produto.get('valorTotalProduto')?.touched">
+                        <span *ngIf="produto.get('valorTotalProduto')?.errors?.['required']">Valor é obrigatório</span>
+                        <span *ngIf="produto.get('valorTotalProduto')?.errors?.['min']">Valor deve ser maior que R$ 0,01</span>
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumo -->
+      <div class="section">
+        <h3>Resumo do Pedido</h3>
+        <div class="resumo-container">
+          <div class="resumo-item">
+            <span class="resumo-label">Total de Produtos:</span>
+            <span class="resumo-valor">{{ calcularTotalProdutos() }}</span>
+          </div>
+          <div class="resumo-item">
+            <span class="resumo-label">Valor Total:</span>
+            <span class="resumo-valor destaque">{{ formatarValor(calcularValorTotal()) }}</span>
+          </div>
+        </div>
+      </div>
+
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions">
+      <button type="button" mat-button (click)="cancelar()" [disabled]="salvando">
+        Cancelar
+      </button>
+
+      <button type="submit"
+              mat-raised-button
+              color="primary"
+              [disabled]="pedidoForm.invalid || salvando">
+        <mat-icon *ngIf="salvando">hourglass_empty</mat-icon>
+        <span *ngIf="!salvando">{{ modo === 'criar' ? 'Criar Pedido' : 'Atualizar Pedido' }}</span>
+        <span *ngIf="salvando">Salvando...</span>
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>

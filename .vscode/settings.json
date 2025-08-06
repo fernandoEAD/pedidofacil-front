@@ -1,0 +1,9 @@
+{
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "angular.enable-strict-mode-prompt": false,
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "angular.experimental-ivy": true,
+  "angular.enableTracing": false
+}
